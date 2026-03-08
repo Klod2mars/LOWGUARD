@@ -38,23 +38,28 @@ class DiscoveryService {
               final port = srv.port;
               // save last ip (no port here - we store host)
               await _saveLastIp(ip);
-              mdns.stop();
+              try {
+                mdns.stop();
+              } catch (_) {}
               return 'http://$ip:$port';
             }
           }
         }
       }
-      mdns.stop();
+      try {
+        mdns.stop();
+      } catch (_) {}
     } catch (_) {
       try {
         mdns.stop();
       } catch (_) {}
     }
     // fallback to last known IP
-    return _lastKnownBaseUrl();
+    return lastKnownBaseUrl();
   }
 
-  Future<String?> _lastKnownBaseUrl() async {
+  /// Public getter for last-known base url stored in prefs
+  Future<String?> lastKnownBaseUrl() async {
     final prefs = await SharedPreferences.getInstance();
     final ip = prefs.getString(lastIpKey);
     if (ip == null) return null;

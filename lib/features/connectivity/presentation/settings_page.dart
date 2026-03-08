@@ -18,7 +18,23 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    // In a real app, we might want to load the current manual IP into the controller
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final notifier = ref.read(discoveryProvider.notifier);
+      final auto = await notifier.getAutoConnect();
+      final last = await notifier.getLastKnownBaseUrl();
+      if (!mounted) return;
+      setState(() {
+        _autoConnect = auto;
+        if (last != null) {
+          try {
+            final uri = Uri.parse(last);
+            _controller.text = uri.host;
+          } catch (_) {
+            _controller.text = last;
+          }
+        }
+      });
+    });
   }
 
   @override

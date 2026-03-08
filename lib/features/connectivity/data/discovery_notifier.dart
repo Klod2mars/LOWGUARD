@@ -1,5 +1,6 @@
 // lib/features/connectivity/data/discovery_notifier.dart
 import 'dart:async';
+import 'dart:math';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'discovery_service.dart';
 
@@ -21,34 +22,39 @@ class Discovery extends _$Discovery {
   Future<void> _init() async {
     // load last known ip or auto discover if enabled
     final auto = await _service.getAutoConnect();
-    await _service.discoverOnce(timeout: Duration.zero); // Wrapped way to get last known if already stored or quickly fetch
-    // Actually, I should use a public method for _lastKnownBaseUrl if I want to match the logic exactly.
-    // Let's adjust DiscoveryService to have a public getter or just use the logic here.
-    
-    // For now, let's use the logic from the user snippet but adapted.
-    // I'll make _lastKnownBaseUrl public in DiscoveryService in a moment if needed, 
-    // or just call discoverOnce with a very short timeout.
-    
-    // Re-reading DiscoveryService: discoverOnce calls _lastKnownBaseUrl at the end.
-    
-    final resolved = await _service.discoverOnce(timeout: const Duration(milliseconds: 100));
-    if (resolved != null) {
-      state = resolved;
+    final last = await _service.lastKnownBaseUrl();
+    if (last != null) {
+      state = last;
     }
 
     if (auto) {
-      discoverNow();
+      await discoverNow();
       // start periodic background discovery (every 2 minutes)
       _pollTimer?.cancel();
       _pollTimer = Timer.periodic(const Duration(minutes: 2), (_) => discoverNow());
     }
   }
 
-  Future<void> discoverNow() async {
-    final resolved = await _service.discoverOnce();
-    if (resolved != null) {
-      state = resolved;
+  /// discoverNow with simple retry/backoff + jitter
+  Future<void> discoverNow({int retries = 3}) async {
+    final rng = Random();
+    for (var attempt = 0; attempt < retries; attempt++) {
+      try {
+        final resolved = await _service.discoverOnce();
+        if (resolved != null) {
+          state = resolved;
+          return;
+        }
+      } catch (_) {
+        // ignore and retry
+      }
+      if (attempt < retries - 1) {
+        final backoffMs = 1000 * (1 << attempt); // 1s, 2s, 4s...
+        final jitter = rng.nextInt(400) - 200; // +/-200ms
+        await Future.delayed(Duration(milliseconds: backoffMs + jitter));
+      }
     }
+    // final fallback: keep previous state (which may be last-known)
   }
 
   Future<void> setManualIp(String ip) async {
@@ -64,11 +70,15 @@ class Discovery extends _$Discovery {
   Future<void> setAutoConnect(bool enabled) async {
     await _service.setAutoConnect(enabled);
     if (enabled) {
-      discoverNow();
+      await discoverNow();
       _pollTimer ??= Timer.periodic(const Duration(minutes: 2), (_) => discoverNow());
     } else {
       _pollTimer?.cancel();
       _pollTimer = null;
     }
   }
+
+  // Public getters for UI
+  Future<bool> getAutoConnect() async => _service.getAutoConnect();
+  Future<String?> getLastKnownBaseUrl() async => _service.lastKnownBaseUrl();
 }

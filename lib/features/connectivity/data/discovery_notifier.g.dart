@@ -40,7 +40,7 @@ final class DiscoveryProvider extends $NotifierProvider<Discovery, String?> {
   }
 }
 
-String _$discoveryHash() => r'809134a3adbf34041ce113584fad6f3091ff18f1';
+String _$discoveryHash() => r'0daf2e205a20298746e7bf97e6f5dcc1e8255b6a';
 
 abstract class _$Discovery extends $Notifier<String?> {
   String? build();

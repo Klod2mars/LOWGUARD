@@ -7,14 +7,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'connectivity_provider.g.dart';
 
 @riverpod
-Dio dio(DioRef ref) => Dio();
+Dio dio(Ref ref) => Dio();
 
 @riverpod
-ConnectivityRepository connectivityRepository(ConnectivityRepositoryRef ref) {
+ConnectivityRepository connectivityRepository(Ref ref) {
   return RemoteConnectivityRepository(ref.watch(dioProvider));
 }
 
 @riverpod
-Future<SystemStatus> systemStatus(SystemStatusRef ref) {
+Future<SystemStatus> systemStatus(Ref ref) {
   return ref.watch(connectivityRepositoryProvider).getSystemStatus();
 }

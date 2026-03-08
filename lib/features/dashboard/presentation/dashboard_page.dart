@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lowguard/shared/theme/war_room_theme.dart';
 import 'package:lowguard/features/dashboard/presentation/security_provider.dart';
 import 'package:lowguard/features/connectivity/presentation/connectivity_provider.dart';
+import 'package:lowguard/core/navigation/router.dart';
 
 class DashboardPage extends HookConsumerWidget {
   const DashboardPage({super.key});
@@ -13,15 +13,16 @@ class DashboardPage extends HookConsumerWidget {
     final securityLevel = ref.watch(securityStatusProvider);
     final systemStatusAsync = ref.watch(systemStatusProvider);
 
-    // Animation for the "Scanning" effect
-    final animationController = useAnimationController(
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('LOWGUARD // WARROOM'),
-        actions: [_buildSecurityIndicator(securityLevel)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => goRouter.push('/settings'),
+          ),
+          _buildSecurityIndicator(securityLevel),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

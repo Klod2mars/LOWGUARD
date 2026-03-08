@@ -47,7 +47,7 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'c62213bddb9aac89c0a19fe034ef243e2a285ba8';
+String _$dioHash() => r'088d5c03610503c2407a8d7429b0e9f3ee76406f';
 
 @ProviderFor(connectivityRepository)
 const connectivityRepositoryProvider = ConnectivityRepositoryProvider._();
@@ -95,7 +95,7 @@ final class ConnectivityRepositoryProvider
 }
 
 String _$connectivityRepositoryHash() =>
-    r'c9a0f68c72400f80caded123394f4d0ce8bc9f1d';
+    r'a829b49f9e0028f1f28d0c08dc8a127831171f87';
 
 @ProviderFor(systemStatus)
 const systemStatusProvider = SystemStatusProvider._();
@@ -134,4 +134,4 @@ final class SystemStatusProvider
   }
 }
 
-String _$systemStatusHash() => r'12f6e587077a74a16fb6aea2406c264cf0ae85c1';
+String _$systemStatusHash() => r'df0a007c17135de7f73c4d8a650b64eaf569e54e';

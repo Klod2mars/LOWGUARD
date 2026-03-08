@@ -32,5 +32,5 @@ enum SecurityLevel {
     required this.description,
   });
 
-  bool get IsEmergency => this == SecurityLevel.breach;
+  bool get isEmergency => this == SecurityLevel.breach;
 }

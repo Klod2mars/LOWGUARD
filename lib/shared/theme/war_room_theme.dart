@@ -16,8 +16,6 @@ class WarRoomTheme {
         secondary: neonGreen,
         surface: mutedGray,
         onSurface: ivory,
-        background: deepBlack,
-        onBackground: ivory,
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(

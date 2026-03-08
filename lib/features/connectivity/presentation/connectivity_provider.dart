@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:lowguard/features/connectivity/data/remote_connectivity_repository.dart';
 import 'package:lowguard/features/connectivity/domain/connectivity_repository.dart';
 import 'package:lowguard/features/connectivity/domain/system_status.dart';
+import 'package:lowguard/features/connectivity/data/discovery_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'connectivity_provider.g.dart';
@@ -11,7 +12,8 @@ Dio dio(Ref ref) => Dio();
 
 @riverpod
 ConnectivityRepository connectivityRepository(Ref ref) {
-  return RemoteConnectivityRepository(ref.watch(dioProvider));
+  final baseUrl = ref.watch(discoveryProvider);
+  return RemoteConnectivityRepository(ref.watch(dioProvider), baseUrl: baseUrl);
 }
 
 @riverpod

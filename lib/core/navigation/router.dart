@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lowguard/features/dashboard/presentation/dashboard_page.dart';
+import 'package:lowguard/features/connectivity/presentation/settings_page.dart';
 
 final goRouter = GoRouter(
   initialLocation: '/',
@@ -16,6 +17,10 @@ final goRouter = GoRouter(
           body: Center(child: Text('Viewing intruder $id details...')),
         );
       },
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const ConnectivitySettingsPage(),
     ),
   ],
 );

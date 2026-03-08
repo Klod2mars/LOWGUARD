@@ -47,6 +47,8 @@ dependencies:
   hooks_riverpod: ^3.0.3
   dio: ^5.9.2
   json_annotation: ^4.8.1
+  multicast_dns: ^0.3.3
+  shared_preferences: ^2.1.1
 
 dev_dependencies:
   flutter_test:

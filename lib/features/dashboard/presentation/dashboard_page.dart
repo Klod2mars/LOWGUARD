@@ -5,6 +5,8 @@ import 'package:lowguard/features/dashboard/presentation/security_provider.dart'
 import 'package:lowguard/features/connectivity/presentation/connectivity_provider.dart';
 import 'package:lowguard/core/navigation/router.dart';
 
+import 'package:lowguard/features/connectivity/data/connection_manager.dart';
+
 class DashboardPage extends HookConsumerWidget {
   const DashboardPage({super.key});
 
@@ -22,6 +24,7 @@ class DashboardPage extends HookConsumerWidget {
             onPressed: () => goRouter.push('/settings'),
           ),
           _buildSecurityIndicator(securityLevel),
+          _buildConnectionStatusBadge(ref),
         ],
       ),
       body: Padding(
@@ -132,6 +135,51 @@ class DashboardPage extends HookConsumerWidget {
               : '[SYSTEM] RECONNECTING TO CORE...\n[ERROR] Connection refused.\n[SCAN] Retrying in 5s...',
           style: const TextStyle(color: WarRoomTheme.neonGreen, fontSize: 12),
         ),
+      ),
+    );
+  }
+
+  Widget _buildConnectionStatusBadge(WidgetRef ref) {
+    final statusAsync = ref.watch(connectionStatusProvider);
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: statusAsync.when(
+        data: (status) {
+          Color color = WarRoomTheme.mutedGray;
+          String label = 'UNKNOWN';
+          switch (status) {
+            case ConnectionStatus.connected:
+              color = WarRoomTheme.neonGreen;
+              label = 'LINK_UP';
+              break;
+            case ConnectionStatus.connecting:
+              color = Colors.orange;
+              label = 'SYNCING';
+              break;
+            case ConnectionStatus.disconnected:
+              color = Colors.red;
+              label = 'LINK_DOWN';
+              break;
+          }
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withAlpha(25), // 0.1 * 255 approx 25
+              border: Border.all(color: color),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        },
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const Icon(Icons.error, color: Colors.red, size: 16),
       ),
     );
   }

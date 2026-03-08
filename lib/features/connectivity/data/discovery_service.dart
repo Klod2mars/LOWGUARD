@@ -19,20 +19,26 @@ class DiscoveryService {
     try {
       await mdns.start();
       // Lookup PTR records for the service
-      final ptrStream = mdns.lookup<PtrResourceRecord>(
-        ResourceRecordQuery.serverPointer(mdnsServiceName),
-      ).timeout(t);
+      final ptrStream = mdns
+          .lookup<PtrResourceRecord>(
+            ResourceRecordQuery.serverPointer(mdnsServiceName),
+          )
+          .timeout(t);
       await for (final ptr in ptrStream) {
         // For each PTR, find SRV that matches the domain
-        final srvStream = mdns.lookup<SrvResourceRecord>(
-          ResourceRecordQuery.service(mdnsServiceName),
-        ).timeout(t);
+        final srvStream = mdns
+            .lookup<SrvResourceRecord>(
+              ResourceRecordQuery.service(mdnsServiceName),
+            )
+            .timeout(t);
         await for (final srv in srvStream) {
           if (srv.target == ptr.domainName) {
             // Resolve A record
-            final addrStream = mdns.lookup<IPAddressResourceRecord>(
-              ResourceRecordQuery.addressIPv4(srv.target),
-            ).timeout(t);
+            final addrStream = mdns
+                .lookup<IPAddressResourceRecord>(
+                  ResourceRecordQuery.addressIPv4(srv.target),
+                )
+                .timeout(t);
             await for (final addr in addrStream) {
               final ip = addr.address.address;
               final port = srv.port;

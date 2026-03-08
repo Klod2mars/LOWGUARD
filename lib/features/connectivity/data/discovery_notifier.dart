@@ -31,7 +31,10 @@ class Discovery extends _$Discovery {
       await discoverNow();
       // start periodic background discovery (every 2 minutes)
       _pollTimer?.cancel();
-      _pollTimer = Timer.periodic(const Duration(minutes: 2), (_) => discoverNow());
+      _pollTimer = Timer.periodic(
+        const Duration(minutes: 2),
+        (_) => discoverNow(),
+      );
     }
   }
 
@@ -71,7 +74,10 @@ class Discovery extends _$Discovery {
     await _service.setAutoConnect(enabled);
     if (enabled) {
       await discoverNow();
-      _pollTimer ??= Timer.periodic(const Duration(minutes: 2), (_) => discoverNow());
+      _pollTimer ??= Timer.periodic(
+        const Duration(minutes: 2),
+        (_) => discoverNow(),
+      );
     } else {
       _pollTimer?.cancel();
       _pollTimer = null;

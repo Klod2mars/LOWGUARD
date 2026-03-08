@@ -97,6 +97,45 @@ final class ConnectivityRepositoryProvider
 String _$connectivityRepositoryHash() =>
     r'a829b49f9e0028f1f28d0c08dc8a127831171f87';
 
+@ProviderFor(connectionStatus)
+const connectionStatusProvider = ConnectionStatusProvider._();
+
+final class ConnectionStatusProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ConnectionStatus>,
+          ConnectionStatus,
+          Stream<ConnectionStatus>
+        >
+    with $FutureModifier<ConnectionStatus>, $StreamProvider<ConnectionStatus> {
+  const ConnectionStatusProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'connectionStatusProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$connectionStatusHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<ConnectionStatus> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<ConnectionStatus> create(Ref ref) {
+    return connectionStatus(ref);
+  }
+}
+
+String _$connectionStatusHash() => r'4ab7191a38f82a7727fdf25dc78f63e1feb63a40';
+
 @ProviderFor(systemStatus)
 const systemStatusProvider = SystemStatusProvider._();
 

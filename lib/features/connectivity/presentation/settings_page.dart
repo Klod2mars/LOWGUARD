@@ -1,18 +1,24 @@
 // lib/features/connectivity/presentation/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:lowguard/features/connectivity/data/discovery_notifier.dart';
+import 'package:lowguard/services/foreground_service.dart';
 
 class ConnectivitySettingsPage extends ConsumerStatefulWidget {
   const ConnectivitySettingsPage({super.key});
 
   @override
-  ConsumerState<ConnectivitySettingsPage> createState() => _ConnectivitySettingsPageState();
+  ConsumerState<ConnectivitySettingsPage> createState() =>
+      _ConnectivitySettingsPageState();
 }
 
-class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsPage> {
+
+class _ConnectivitySettingsPageState
+    extends ConsumerState<ConnectivitySettingsPage> {
   late final TextEditingController _controller;
   bool _autoConnect = true;
+  bool _alwaysConnected = false;
 
   @override
   void initState() {
@@ -22,9 +28,12 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
       final notifier = ref.read(discoveryProvider.notifier);
       final auto = await notifier.getAutoConnect();
       final last = await notifier.getLastKnownBaseUrl();
+      final running = await FlutterForegroundTask.isRunningService;
+      
       if (!mounted) return;
       setState(() {
         _autoConnect = auto;
+        _alwaysConnected = running;
         if (last != null) {
           try {
             final uri = Uri.parse(last);
@@ -46,7 +55,7 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
   @override
   Widget build(BuildContext context) {
     final discovery = ref.watch(discoveryProvider);
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text('Connectivity Settings')),
       body: Padding(
@@ -60,7 +69,10 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Current Backend Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Current Backend Status',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     Text('Target URL: ${discovery ?? "Not discovered"}'),
                   ],
@@ -68,7 +80,10 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Manual Configuration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Manual Configuration',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: _controller,
@@ -96,15 +111,45 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Options', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Options',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             ListTile(
               title: const Text('Auto connect'),
-              subtitle: const Text('Search for backend automatically on startup'),
+              subtitle: const Text(
+                'Search for backend automatically on startup',
+              ),
               trailing: Switch(
                 value: _autoConnect,
                 onChanged: (v) async {
                   setState(() => _autoConnect = v);
                   await ref.read(discoveryProvider.notifier).setAutoConnect(v);
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Always connected (Foreground)'),
+              subtitle: const Text(
+                'Persistent background service for WebSocket link',
+              ),
+              trailing: Switch(
+                value: _alwaysConnected,
+                onChanged: (v) async {
+                  setState(() => _alwaysConnected = v);
+                  if (v) {
+                    final baseUrl = ref.read(discoveryProvider);
+                    if (baseUrl != null) {
+                      await ForegroundService.start(baseUrl);
+                    } else {
+                      setState(() => _alwaysConnected = false);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No backend discovered')),
+                      );
+                    }
+                  } else {
+                    await ForegroundService.stop();
+                  }
                 },
               ),
             ),
@@ -128,7 +173,9 @@ class _ConnectivitySettingsPageState extends ConsumerState<ConnectivitySettingsP
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () async {
-                      await ref.read(discoveryProvider.notifier).setManualIp('');
+                      await ref
+                          .read(discoveryProvider.notifier)
+                          .setManualIp('');
                       _controller.clear();
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(

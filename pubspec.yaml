@@ -49,6 +49,10 @@ dependencies:
   json_annotation: ^4.8.1
   multicast_dns: ^0.3.3
   shared_preferences: ^2.1.1
+  web_socket_channel: ^3.0.1
+  flutter_foreground_task: ^8.0.0
+  flutter_local_notifications: ^18.0.1
+  wakelock_plus: ^1.2.1
 
 dev_dependencies:
   flutter_test:

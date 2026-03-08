@@ -4,7 +4,7 @@ part 'system_status.freezed.dart';
 part 'system_status.g.dart';
 
 @freezed
-class SystemStatus with _$SystemStatus {
+abstract class SystemStatus with _$SystemStatus {
   const factory SystemStatus({
     required String system,
     required String nas,

@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'sensor_entity.freezed.dart';
 
 @freezed
-class SensorEntity with _$SensorEntity {
+abstract class SensorEntity with _$SensorEntity {
   const factory SensorEntity({
     required String id,
     required String name,
@@ -14,7 +14,7 @@ class SensorEntity with _$SensorEntity {
 }
 
 @freezed
-class IntruderEntity with _$IntruderEntity {
+abstract class IntruderEntity with _$IntruderEntity {
   const factory IntruderEntity({
     required String id,
     required DateTime detectedAt,

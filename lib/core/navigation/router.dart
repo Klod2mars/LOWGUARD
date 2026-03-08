@@ -5,10 +5,7 @@ import 'package:lowguard/features/dashboard/presentation/dashboard_page.dart';
 final goRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const DashboardPage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const DashboardPage()),
     // Deep link example for intruders
     GoRoute(
       path: '/intruder/:id',

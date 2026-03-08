@@ -3,26 +3,33 @@ import 'package:dio/dio.dart';
 import 'package:lowguard/features/connectivity/domain/connectivity_repository.dart';
 import 'package:lowguard/features/connectivity/domain/system_status.dart';
 
+/// RemoteConnectivityRepository
+/// - La baseUrl peut être fournie via le constructeur (pour tests/DI)
+/// - Ou via `--dart-define=API_BASE_URL=...` (valeur par défaut: http://localhost:8000)
 class RemoteConnectivityRepository implements ConnectivityRepository {
   final Dio _dio;
-  final String _baseUrl = 'http://localhost:8000'; // Target local backend
+  final String _baseUrl;
 
-  RemoteConnectivityRepository(this._dio);
+  RemoteConnectivityRepository(this._dio, {String? baseUrl})
+    : _baseUrl =
+          baseUrl ??
+          const String.fromEnvironment(
+            'API_BASE_URL',
+            defaultValue: 'http://localhost:8000',
+          );
 
   @override
   Future<SystemStatus> getSystemStatus() async {
     try {
       final response = await _dio.get('$_baseUrl/status');
       if (response.statusCode == 200) {
-        // Map keys from snake_case to camelCase if needed, but here we'll match the JSON
         final data = response.data as Map<String, dynamic>;
-        
-        // Convert keys to match field names in SystemStatus
+
         return SystemStatus.fromJson({
           'system': data['system'],
           'nas': data['nas'],
           'network': data['network'],
-          'butlerAi': data['butler_ai'], // Map butler_ai to butlerAi
+          'butlerAi': data['butler_ai'],
           'perimeter': data['perimeter'],
           'timestamp': data['timestamp'],
         });

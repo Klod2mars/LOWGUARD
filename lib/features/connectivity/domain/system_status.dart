@@ -14,5 +14,6 @@ class SystemStatus with _$SystemStatus {
     required String timestamp,
   }) = _SystemStatus;
 
-  factory SystemStatus.fromJson(Map<String, dynamic> json) => _$SystemStatusFromJson(json);
+  factory SystemStatus.fromJson(Map<String, dynamic> json) =>
+      _$SystemStatusFromJson(json);
 }

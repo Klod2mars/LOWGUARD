@@ -4,11 +4,7 @@ import 'package:lowguard/core/navigation/router.dart';
 import 'package:lowguard/shared/theme/war_room_theme.dart';
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: LowGuardApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: LowGuardApp()));
 }
 
 class LowGuardApp extends StatelessWidget {

@@ -1,0 +1,37 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: lowguard_mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  frigate:
+    container_name: lowguard_frigate
+    privileged: true # required for hardware acceleration
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: "128mb" # increase for more cameras
+    devices:
+      - /dev/dri/renderD128 # for intel hwaccel, adapt if needed
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./frigate_config.yml:/config/config.yml
+      - ./frigate/storage:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000"
+      - "8554:8554" # RTSP feeds
+      - "8555:8555" # WebRTC
+    environment:
+      FRIGATE_RTSP_PASSWORD: "password"
+    depends_on:
+      - mosquitto

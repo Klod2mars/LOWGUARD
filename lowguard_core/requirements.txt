@@ -1,2 +1,9 @@
 fastapi
 uvicorn
+paho-mqtt
+pydantic
+onvif-zeep
+wsdiscovery
+python-multipart
+httpx
+ffmpeg-python

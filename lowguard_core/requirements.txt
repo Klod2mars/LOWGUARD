@@ -7,3 +7,8 @@ wsdiscovery
 python-multipart
 httpx
 ffmpeg-python
+zeroconf
+bcrypt
+cryptography
+qrcode
+pyyaml

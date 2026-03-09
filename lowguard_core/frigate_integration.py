@@ -1,7 +1,7 @@
-import yaml
 import os
+import yaml
 from fastapi import APIRouter, HTTPException
-from .device_registry import load_cameras
+from device_registry import load_cameras
 
 router = APIRouter(prefix="/frigate", tags=["frigate"])
 

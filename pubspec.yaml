@@ -53,6 +53,10 @@ dependencies:
   flutter_foreground_task: ^8.0.0
   flutter_local_notifications: ^18.0.1
   wakelock_plus: ^1.2.1
+  flutter_secure_storage: ^10.0.0
+  crypto: ^3.0.7
+  mobile_scanner: ^7.2.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

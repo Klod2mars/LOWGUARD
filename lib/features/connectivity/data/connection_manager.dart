@@ -4,6 +4,9 @@ import 'dart:math';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:lowguard/features/pairing/auth_interceptor.dart';
 
 enum ConnectionStatus { connecting, connected, disconnected }
 
@@ -17,6 +20,8 @@ class ConnectionManager {
   StreamSubscription? _statusSubscription;
   Timer? _heartbeatTimer;
   Timer? _reconnectTimer;
+  final _storage = const FlutterSecureStorage();
+  final _dio = Dio()..interceptors.add(LowGuardAuthInterceptor());
 
   final _statusController = StreamController<ConnectionStatus>.broadcast();
   Stream<ConnectionStatus> get statusStream => _statusController.stream;
@@ -60,6 +65,12 @@ class ConnectionManager {
     _logger.i('Connecting to WebSocket: $_baseUrl');
 
     try {
+      // First check health
+      final healthOk = await _checkHealth();
+      if (!healthOk) {
+        await _attemptWake();
+      }
+
       _channel = WebSocketChannel.connect(Uri.parse(_baseUrl!));
       
       _channel!.stream.listen(
@@ -83,6 +94,31 @@ class ConnectionManager {
     } catch (e) {
       _logger.e('Failed to connect: $e');
       _handleDisconnect();
+    }
+  }
+
+  Future<bool> _checkHealth() async {
+    try {
+      final httpUrl = _baseUrl!.replaceFirst('ws://', 'http://').replaceAll('/ws', '/health');
+      final response = await _dio.get(httpUrl);
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _attemptWake() async {
+    final host = Uri.parse(_baseUrl!.replaceFirst('ws://', 'http://')).host;
+    final managerUrl = 'http://$host:9000/manager/wake';
+    _logger.i('Attempting Auto-Wake via manager: $managerUrl');
+    
+    try {
+      await _dio.post(managerUrl);
+      _logger.i('Wake command sent successfully.');
+      // Wait for boot
+      await Future.delayed(const Duration(seconds: 5));
+    } catch (e) {
+      _logger.e('Auto-Wake failed: $e');
     }
   }
 

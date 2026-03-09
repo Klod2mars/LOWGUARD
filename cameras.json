@@ -1,0 +1,18 @@
+[
+    {
+        "id": "sim_cam_6147",
+        "type": "RTSP",
+        "source_url": "rtsp://localhost:8554/live",
+        "username": "admin",
+        "password": "password",
+        "meta": {
+            "location": "lab",
+            "metrics": {
+                "fps": 16,
+                "bitrate": "2Mbps"
+            }
+        },
+        "status": "ONLINE",
+        "last_seen": "2026-03-09T04:55:43.395758"
+    }
+]

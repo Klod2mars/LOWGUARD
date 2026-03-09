@@ -4,10 +4,10 @@ import uvicorn
 import os
 from contextlib import asynccontextmanager
 
-from device_registry import router as device_router
-from camera_adapters import router as adapter_router
-from frigate_integration import router as frigate_router
-from pairing import router as pairing_router, start_mdns
+from .device_registry import router as device_router
+from .camera_adapters import router as adapter_router
+from .frigate_integration import router as frigate_router
+from .pairing import router as pairing_router, start_mdns
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,8 +15,9 @@ async def lifespan(app: FastAPI):
     zc, info = start_mdns()
     yield
     # Shutdown: Stop mDNS
-    zc.unregister_service(info)
-    zc.close()
+    if zc and info:
+        zc.unregister_service(info)
+        zc.close()
 
 app = FastAPI(title="LOWGUARD Core", lifespan=lifespan)
 

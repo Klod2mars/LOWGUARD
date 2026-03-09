@@ -13,7 +13,7 @@ import io
 import base64
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 import socket
-from device_registry import get_mqtt_client
+from .device_registry import get_mqtt_client
 
 router = APIRouter(prefix="/pair", tags=["pairing"])
 
@@ -97,23 +97,27 @@ async def confirm_pairing(req: PairConfirmRequest):
 
 # mDNS Announcement
 def start_mdns():
-    zeroconf = Zeroconf()
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
-    
-    desc = {'version': '1.0.0', 'pairing': 'required'}
-    
-    info = ServiceInfo(
-        "_lowguard._tcp.local.",
-        f"{hostname}._lowguard._tcp.local.",
-        addresses=[socket.inet_aton(local_ip)],
-        port=8000,
-        properties=desc,
-        server=f"{hostname}.local.",
-    )
-    
-    zeroconf.register_service(info)
-    return zeroconf, info
+    try:
+        zeroconf = Zeroconf()
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+        
+        desc = {'version': '1.0.0', 'pairing': 'required'}
+        
+        info = ServiceInfo(
+            "_lowguard._tcp.local.",
+            f"{hostname}._lowguard._tcp.local.",
+            addresses=[socket.inet_aton(local_ip)],
+            port=8000,
+            properties=desc,
+            server=f"{hostname}.local.",
+        )
+        
+        zeroconf.register_service(info)
+        return zeroconf, info
+    except Exception as e:
+        print(f"MDNS registration failed: {e}")
+        return None, None
 
 # HMAC Verification Helper (to be used by dependencies)
 def verify_hmac(device_id: str, timestamp: str, signature: str, body: bytes = b''):

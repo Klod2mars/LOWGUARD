@@ -2,7 +2,7 @@ import ffmpeg
 import os
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from device_registry import load_cameras
+from .device_registry import load_cameras
 import subprocess
 
 router = APIRouter(prefix="/cameras", tags=["cameras"])

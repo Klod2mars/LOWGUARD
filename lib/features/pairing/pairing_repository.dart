@@ -51,4 +51,9 @@ class PairingRepository {
   }
 }
 
-final pairingRepositoryProvider = Provider((ref) => PairingRepository(Dio()));
+final pairingRepositoryProvider = Provider((ref) => PairingRepository(
+      Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      )),
+    ));

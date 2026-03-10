@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lowguard/features/connectivity/data/discovery_notifier.dart';
 import 'package:lowguard/services/foreground_service.dart';
 
@@ -153,6 +154,16 @@ class _ConnectivitySettingsPageState
                 },
               ),
             ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.go('/pair'),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Pair Device'),
+              ),
+            ),
+            const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 12),
             Row(

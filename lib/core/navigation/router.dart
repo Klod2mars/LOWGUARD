@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lowguard/features/dashboard/presentation/dashboard_page.dart';
 import 'package:lowguard/features/connectivity/presentation/settings_page.dart';
+import 'package:lowguard/features/pairing/pairing_screen.dart';
 
 final goRouter = GoRouter(
   initialLocation: '/',
@@ -21,6 +22,10 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const ConnectivitySettingsPage(),
+    ),
+    GoRoute(
+      path: '/pair',
+      builder: (context, state) => const PairingScreen(),
     ),
   ],
 );

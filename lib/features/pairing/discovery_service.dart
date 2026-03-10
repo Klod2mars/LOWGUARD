@@ -6,22 +6,32 @@ class DiscoveryService {
   BonsoirDiscovery? _discovery;
   final String _type = '_lowguard._tcp';
 
-  Stream<List<ResolvedBonsoirService>> discover() async* {
+  Stream<List<BonsoirService>> discover() async* {
     _discovery = BonsoirDiscovery(type: _type);
-    await _discovery!.ready;
+    await _discovery!.initialize();
     await _discovery!.start();
 
-    final List<ResolvedBonsoirService> services = [];
+    final List<BonsoirService> services = [];
+    yield services;
 
     await for (final event in _discovery!.eventStream!) {
-      if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-        final service = event.service as ResolvedBonsoirService;
+      if (event is BonsoirDiscoveryServiceFoundEvent) {
+        final service = event.service;
         if (!services.any((s) => s.name == service.name)) {
           services.add(service);
           yield List.from(services);
         }
-      } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-        services.removeWhere((s) => s.name == event.service!.name);
+      } else if (event is BonsoirDiscoveryServiceResolvedEvent) {
+        final service = event.service;
+        final index = services.indexWhere((s) => s.name == service.name);
+        if (index != -1) {
+          services[index] = service;
+        } else {
+          services.add(service);
+        }
+        yield List.from(services);
+      } else if (event is BonsoirDiscoveryServiceLostEvent) {
+        services.removeWhere((s) => s.name == event.service.name);
         yield List.from(services);
       }
     }
@@ -34,7 +44,7 @@ class DiscoveryService {
 
 final discoveryServiceProvider = Provider((ref) => DiscoveryService());
 
-final discoveredServicesProvider = StreamProvider<List<ResolvedBonsoirService>>((ref) {
+final discoveredServicesProvider = StreamProvider<List<BonsoirService>>((ref) {
   final service = ref.watch(discoveryServiceProvider);
   return service.discover();
 });

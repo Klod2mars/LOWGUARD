@@ -19,7 +19,22 @@ router = APIRouter(prefix="/pair", tags=["pairing"])
 
 TOKENS_FILE = "pairing_tokens.json"
 DEVICES_FILE = "paired_devices.json"
-TOKEN_TTL = 300 # 5 minutes
+# TTL configurable via env (en secondes). Par défaut 5 minutes.
+TOKEN_TTL = int(os.environ.get('PAIR_TOKEN_TTL', '300'))  # 300s = 5min
+
+# Récupération d'une IP LAN fiable (ne dépend pas du DNS local/hostname).
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # On "connecte" vers une IP publique (pas d'envoi réel requis)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = '127.0.0.1'
+    finally:
+        s.close()
+    return ip
+
 
 class PairConfirmRequest(BaseModel):
     token: str
@@ -45,7 +60,8 @@ async def get_pairing_qrcode():
     
     # Generate QR content (URL or JSON)
     hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
+    # Prioritise PAIR_HOST si défini (utile pour le dev), sinon calcule une IP LAN fiable.
+    local_ip = os.environ.get('PAIR_HOST') or get_local_ip()
     qr_data = f"lowguard:pair?token={token}&host={local_ip}"
     
     img = qrcode.make(qr_data)
@@ -100,7 +116,9 @@ def start_mdns():
     try:
         zeroconf = Zeroconf()
         hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
+        local_ip = os.environ.get('PAIR_HOST') or get_local_ip()
+        
+        print(f"Pairing QR host: {local_ip}")
         
         desc = {'version': '1.0.0', 'pairing': 'required'}
         
